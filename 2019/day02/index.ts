@@ -1,4 +1,4 @@
-const program: number[] = require('fs')
+const day2Program: number[] = require('fs')
     .readFileSync('2019/day02/input.txt').toString()
     .split(",")
     .map(Number);
@@ -15,7 +15,7 @@ const performOperation = (opCode: number, parameterA: number, parameterB: number
 }
 
 const resetAndExecute = (noun = 12, verb = 2) => {
-    const memory: number[] = program.map(n => n);
+    const memory: number[] = day2Program.map(n => n);
 
     // BEFORE RUNNING replace position 1 with the noun and replace position 2 with the verb.
     memory[1] = noun;
