@@ -5,19 +5,31 @@ const day5Program: number[] = require('fs')
 
 const OPERATION_ADD = 1;
 const OPERATION_MULTIPLY = 2;
+const OPERATION_TAKE_INPUT = 3;
+const OPERATION_PRINT = 4;
 const OPERATION_TERMINATE = 99;
-type Operation = 1 | 2 | 99;
+type Operation = 1 | 2 | 3 | 4 | 99;
 
 const PARAMETER_MODE_POSITION = 0;
 const PARAMETER_MODE_IMMEDIATE = 1;
 type ParameterMode = 0 | 1;
 
-const performOperation = (opCode: Operation, parameterA: number, parameterB: number): number => {
+const takeNextInput = () => {
+    return 1;
+}
+
+const performOperation = (opCode: Operation, parameterA: number, parameterB: number): number | null => {
     switch (opCode) {
         case OPERATION_ADD:
             return parameterA + parameterB;
         case OPERATION_MULTIPLY:
             return parameterA * parameterB;
+        case OPERATION_TAKE_INPUT:
+            return takeNextInput();
+        case OPERATION_PRINT: {
+            console.log(parameterA);
+            return null;
+        };
     }
 
     throw new Error("Unknown opCode: " + opCode);
@@ -29,6 +41,8 @@ const extractOperation = (opCode: number): Operation => {
     switch (output) {
         case OPERATION_ADD:
         case OPERATION_MULTIPLY:
+        case OPERATION_TAKE_INPUT:
+        case OPERATION_PRINT:
         case OPERATION_TERMINATE:
             return output;
     }
@@ -69,12 +83,20 @@ const getOperationSize = (operation: Operation): number => {
         case OPERATION_ADD:
         case OPERATION_MULTIPLY:
             return 4;
+        case OPERATION_TAKE_INPUT:
+            return 2;
+        case OPERATION_PRINT:
+            return 2;
         case OPERATION_TERMINATE:
             return 1;
         default:
             throw new Error("Unknown operation: " + operation);
     }
 };
+
+const getTotalParameters = (operation: Operation): number => {
+    return Math.max(0, getOperationSize(operation) - 2);
+}
 
 const executeProgram = (rawProgram: number[]) => {
     const memory: number[] = rawProgram.map(n => n);
@@ -87,11 +109,16 @@ const executeProgram = (rawProgram: number[]) => {
         const operation = extractOperation(opCode);
         const operationSize = getOperationSize(operation);
 
+        const totalParameters = getTotalParameters(operation);
+
         const parameterAddressA = memory[instructionPointer + 1];
         const parameterAddressB = memory[instructionPointer + 2];
-        const outputAddress = memory[instructionPointer + 3];
 
-        memory[outputAddress] = performOperation(operation, memory[parameterAddressA], memory[parameterAddressB]);
+        const operationOutput = performOperation(operation, memory[parameterAddressA], memory[parameterAddressB]);
+        if (operationOutput !== null) {
+            const outputAddress = memory[instructionPointer + totalParameters + 1];
+            memory[outputAddress] = operationOutput;
+        }
 
         instructionPointer += operationSize;
         opCode = memory[instructionPointer];
