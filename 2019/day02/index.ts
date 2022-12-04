@@ -1,7 +1,7 @@
 const program: number[] = require('fs')
     .readFileSync('2019/day02/input.txt').toString()
     .split(",")
-    .map((str: string) => Number.parseInt(str));
+    .map(Number);
 
 const performOperation = (opCode: number, parameterA: number, parameterB: number): number => {
     switch (opCode) {

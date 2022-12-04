@@ -1,7 +1,7 @@
 const moduleWeights = require('fs')
     .readFileSync('2019/day01/input.txt').toString()
     .split("\n")
-    .map((str: string) => Number.parseInt(str));
+    .map(Number);
 
 const calculateFuelFoMass = (mass: number): number => Math.floor(mass / 3) - 2;
 const sumFuels = (runningTotal: number, moduleWeight: number) => runningTotal + moduleWeight;
