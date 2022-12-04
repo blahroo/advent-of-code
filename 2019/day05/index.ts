@@ -115,7 +115,6 @@ const executeProgram = (rawProgram: number[]) => {
     while (opCode !== OPERATION_TERMINATE) {
         const parameterModes = getParameterModesForOpCode(opCode);
         const operation = extractOperation(opCode);
-        const operationSize = getOperationSize(operation);
         const totalParameters = getTotalParameters(operation);
 
         const parameters: number[] = [];
@@ -134,7 +133,7 @@ const executeProgram = (rawProgram: number[]) => {
             memory[outputAddress] = operationOutput;
         }
 
-        instructionPointer += operationSize;
+        instructionPointer += getOperationSize(operation);
         opCode = memory[instructionPointer];
     }
 
