@@ -61,3 +61,5 @@ console.log(`123444 = ${isValidPassword(123444)} expected false`);
 console.log(`111122 = ${isValidPassword(111122)} expected true`);
 
 console.log("Total possible passwords = " + possiblePasswords.length);
+
+export {}

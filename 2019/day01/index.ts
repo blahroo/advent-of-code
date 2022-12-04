@@ -29,3 +29,5 @@ const totalFuelWithFuelConsideration = moduleWeights
     .reduce(sumFuels, 0);
 
 console.log("Part 2: " + totalFuelWithFuelConsideration);
+
+export {}

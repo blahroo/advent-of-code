@@ -90,3 +90,5 @@ allCollisions.forEach(collidingPoint => {
 
 console.log("Shortest distance is: " + shortestDistance);
 console.log("Shortest delay is: " + shortestDelay);
+
+export {}
