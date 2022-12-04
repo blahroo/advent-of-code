@@ -7,29 +7,29 @@ const memory: number[] = require('fs')
 memory[1] = 12;
 memory[2] = 2;
 
-let programCounter = 0;
+let instructionPointer = 0;
 let opCode: number = memory[0];
 
-const performOperation = (opCode: number, inputA: number, inputB: number): number => {
+const performOperation = (opCode: number, parameterA: number, parameterB: number): number => {
     switch (opCode) {
         case 1:
-            return inputA + inputB;
+            return parameterA + parameterB;
         case 2:
-            return inputA * inputB;
+            return parameterA * parameterB;
     }
 
     throw new Error("Unknown opCode: " + opCode);
 }
 
 while (opCode !== 99) {
-    const inputPositionA = memory[programCounter + 1];
-    const inputPositionB = memory[programCounter + 2];
-    const outputPosition = memory[programCounter + 3];
+    const parameterAddressA = memory[instructionPointer + 1];
+    const parameterAddressB = memory[instructionPointer + 2];
+    const outputAddress = memory[instructionPointer + 3];
 
-    memory[outputPosition] = performOperation(opCode, memory[inputPositionA], memory[inputPositionB]);
+    memory[outputAddress] = performOperation(opCode, memory[parameterAddressA], memory[parameterAddressB]);
 
-    programCounter += 4;
-    opCode = memory[programCounter];
+    instructionPointer += 4;
+    opCode = memory[instructionPointer];
 }
 
-console.log("Part 1: " + memory[0])
+console.log("Part 1: " + memory[0]);
