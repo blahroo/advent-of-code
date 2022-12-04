@@ -1,5 +1,5 @@
 const day5Program: number[] = require('fs')
-    .readFileSync('2019/day02/input.txt').toString()
+    .readFileSync('2019/day05/input.txt').toString()
     .split(",")
     .map(Number);
 
@@ -119,8 +119,10 @@ const executeProgram = (rawProgram: number[]) => {
 
         const parameters: number[] = [];
         for (let i = 0; i < totalParameters; ++i) {
+            let parameterMode = parameterModes[i] || PARAMETER_MODE_POSITION;
+
             const address = memory[instructionPointer + 1 + i];
-            const value = memory[address];
+            const value = (parameterMode == PARAMETER_MODE_IMMEDIATE) ? address : memory[address];
 
             parameters.push(value);
         }
@@ -138,6 +140,8 @@ const executeProgram = (rawProgram: number[]) => {
     return memory[0];
 };
 
-console.log("Output = " + executeProgram([1,9,10,3,2,3,11,0,99,30,40,50]));
+console.log("Output = " + executeProgram(day5Program));
+
+// 152702 Too low
 
 export {}
