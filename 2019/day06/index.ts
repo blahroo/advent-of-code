@@ -30,17 +30,32 @@ console.log(orbitConfigurations[0]);
 interface IObject {
     readonly id: string;
     readonly children: IObject[];
+    readonly level: number;
 
     addChild(child: IObject): void;
+    setLevel(newLevel: number): void;
 }
 
 class OrbitableObject implements IObject {
     public readonly children: IObject[] = [];
+    private _level: number | null = null;
 
     constructor(public readonly id: string) { }
 
+    get level() {
+        if (this._level === null) {
+            throw new Error("Level was not set for " + this.id);
+        }
+        return this._level;
+    }
+
     addChild(child: IObject) {
         this.children.push(child);
+    }
+
+    setLevel(level: number) {
+        this._level = level;
+        this.children.forEach(child => child.setLevel(level + 1));
     }
 }
 
@@ -78,5 +93,14 @@ orbitConfigurations.forEach(orbitConfiguration => {
 
 const universalCenterOfMass = safeGetFromCache("COM");
 console.log(universalCenterOfMass);
+
+universalCenterOfMass.setLevel(0);
+
+let part1 = 0;
+objectCache.forEach(object => {
+    part1 = part1 + object.level;
+})
+
+console.log(part1);
 
 export {};
