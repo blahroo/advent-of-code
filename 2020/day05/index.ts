@@ -56,14 +56,23 @@ class RangePartitioner {
     }
 }
 
-function getSeatIdFromBoardingPass(boardingPass: string): number {
+function getSeatId(row: number, column: number): number {
+    return (row * 8) + column;
+}
+
+function getSeatRowAndColumn(boardingPass: string): [number, number] {
     const rowInstructions = adaptInstructions(boardingPass.substring(0, 7));
     const rowResult = new RangePartitioner(0, 127).applyPartitionInstructions(rowInstructions);
 
     const columnInstructions = adaptInstructions(boardingPass.substring(7));
     const columnResult = new RangePartitioner(0, 7).applyPartitionInstructions(columnInstructions);
 
-    const seatId = (rowResult * 8) + columnResult;
+    return [rowResult, columnResult];
+}
+
+function getSeatIdFromBoardingPass(boardingPass: string): number {
+    const [rowResult, columnResult] = getSeatRowAndColumn(boardingPass);
+    const seatId = getSeatId(rowResult, columnResult);
     //console.log(`row ${rowResult}, column ${columnResult}, seat ID ${seatId}`);
 
     return seatId;
@@ -77,5 +86,29 @@ let highestSeatId: number = rows.reduce((runningHighest, boardingPass) => {
 
 console.log(`Highest seat ID on a boarding pass is ${highestSeatId}`);
 
+const availableSeats = new Set<number>(); // Seat id, coords
+
+for (let rowIndex = 0; rowIndex < 128; ++rowIndex) {
+    for (let columnIndex = 0; columnIndex < 8; ++columnIndex) {
+        const seatId = getSeatId(rowIndex, columnIndex);
+        availableSeats.add(seatId);
+    }
+}
+
+console.log(`initially ${availableSeats.size} available seats`);
+
+rows.forEach(boardingPass => {
+    const coords = getSeatRowAndColumn(boardingPass);
+    const [rowResult, columnResult] = coords;
+    const seatId = getSeatId(rowResult, columnResult);
+
+    availableSeats.delete(seatId);
+});
+
+for (let seatId of availableSeats) {
+    if (!availableSeats.has(seatId + 1) && !availableSeats.has(seatId - 1)) {
+        console.log(`Your seat id is ${seatId}`);
+    }
+}
 
 export {};
