@@ -7,8 +7,12 @@ const OPERATION_ADD = 1;
 const OPERATION_MULTIPLY = 2;
 const OPERATION_TAKE_INPUT = 3;
 const OPERATION_PRINT = 4;
+const OPERATION_JUMP_IF_TRUE = 5;
+const OPERATION_JUMP_IF_FALSE = 6;
+const OPERATION_LESS_THAN = 7;
+const OPERATION_EQUALS = 8;
 const OPERATION_TERMINATE = 99;
-type Operation = 1 | 2 | 3 | 4 | 99;
+type Operation = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 99;
 
 const PARAMETER_MODE_POSITION = 0;
 const PARAMETER_MODE_IMMEDIATE = 1;
@@ -27,9 +31,13 @@ operationDetailLookup[OPERATION_ADD] = new OperationDetails(2, 1);
 operationDetailLookup[OPERATION_MULTIPLY] = new OperationDetails(2, 1);
 operationDetailLookup[OPERATION_TAKE_INPUT] = new OperationDetails(0, 1);
 operationDetailLookup[OPERATION_PRINT] = new OperationDetails(1, 0)
+operationDetailLookup[OPERATION_JUMP_IF_TRUE] = new OperationDetails(2, 0);
+operationDetailLookup[OPERATION_JUMP_IF_FALSE] = new OperationDetails(2, 0);
+operationDetailLookup[OPERATION_LESS_THAN] = new OperationDetails(2, 1);
+operationDetailLookup[OPERATION_EQUALS] = new OperationDetails(2, 1);
 operationDetailLookup[OPERATION_TERMINATE] = new OperationDetails(0, 0);
 
-const takeNextInput = (): number => 1;
+const takeNextInput = (): number => 5;
 
 const safeGetParameter = (index: number, parameters: number[]): number => {
     if (parameters.length <= index) {
@@ -39,17 +47,45 @@ const safeGetParameter = (index: number, parameters: number[]): number => {
     return parameters[index];
 }
 
-const performOperation = (opCode: Operation, parameters: number[]): number | null => {
+interface IOperationOutput {
+    data?: number;
+    jumpTo?: number;
+}
+
+const createDataOutput = (data: number): IOperationOutput => ({data});
+const createJumpToOutput = (jumpTo: number): IOperationOutput => ({jumpTo});
+
+const performOperation = (opCode: Operation, parameters: number[]): IOperationOutput => {
     switch (opCode) {
         case OPERATION_ADD:
-            return safeGetParameter(0, parameters) + safeGetParameter(1, parameters);
+            return createDataOutput(safeGetParameter(0, parameters) + safeGetParameter(1, parameters));
         case OPERATION_MULTIPLY:
-            return safeGetParameter(0, parameters) * safeGetParameter(1, parameters);
+            return createDataOutput(safeGetParameter(0, parameters) * safeGetParameter(1, parameters));
         case OPERATION_TAKE_INPUT:
-            return takeNextInput();
+            return createDataOutput(takeNextInput());
+        case OPERATION_JUMP_IF_TRUE: {
+            if (safeGetParameter(0, parameters) !== 0) {
+                return createJumpToOutput(safeGetParameter(1, parameters));
+            }
+            return {};
+        }
+        case OPERATION_JUMP_IF_FALSE: {
+            if (safeGetParameter(0, parameters) === 0) {
+                return createJumpToOutput(safeGetParameter(1, parameters));
+            }
+            return {};
+        }
+        case OPERATION_LESS_THAN: {
+            const isLess = safeGetParameter(0, parameters) < safeGetParameter(1, parameters)
+            return createDataOutput(isLess ? 1 : 0);
+        }
+        case OPERATION_EQUALS: {
+            const isEqual = safeGetParameter(0, parameters) === safeGetParameter(1, parameters)
+            return createDataOutput(isEqual ? 1 : 0);
+        }
         case OPERATION_PRINT: {
             console.log(safeGetParameter(0, parameters));
-            return null;
+            return {};
         }
     }
 
@@ -128,18 +164,21 @@ const executeProgram = (rawProgram: number[]) => {
         }
 
         const operationOutput = performOperation(operation, parameters);
-        if (operationOutput !== null) {
+        if (operationOutput.data !== undefined) {
             const outputAddress = memory[instructionPointer + totalParameters + 1];
-            memory[outputAddress] = operationOutput;
+            memory[outputAddress] = operationOutput.data;
         }
 
-        instructionPointer += getOperationSize(operation);
+        if (operationOutput.jumpTo === undefined) {
+            instructionPointer += getOperationSize(operation);
+        } else {
+            instructionPointer = operationOutput.jumpTo;
+        }
+
         opCode = memory[instructionPointer];
     }
 
     return memory[0];
 };
-
-console.log("Program Output Code = " + executeProgram(day5Program));
 
 export {}
