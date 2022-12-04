@@ -18,16 +18,24 @@ const takeNextInput = () => {
     return 1;
 }
 
-const performOperation = (opCode: Operation, parameterA: number, parameterB: number): number | null => {
+const safeGetParameter = (index: number, parameters: number[]): number => {
+    if (parameters.length <= index) {
+        throw new Error("Tried to read non exising parameter at index: " + index + ", parameters are: " + parameters.join(","));
+    }
+
+    return parameters[index];
+}
+
+const performOperation = (opCode: Operation, parameters: number[]): number | null => {
     switch (opCode) {
         case OPERATION_ADD:
-            return parameterA + parameterB;
+            return safeGetParameter(0, parameters) + safeGetParameter(1, parameters);
         case OPERATION_MULTIPLY:
-            return parameterA * parameterB;
+            return safeGetParameter(0, parameters) * safeGetParameter(1, parameters);
         case OPERATION_TAKE_INPUT:
             return takeNextInput();
         case OPERATION_PRINT: {
-            console.log(parameterA);
+            console.log(safeGetParameter(0, parameters));
             return null;
         };
     }
@@ -76,8 +84,6 @@ const getParameterModesForOpCode = (opCode: number): ParameterMode[] => {
     return withoutOpCode as ParameterMode[];
 };
 
-console.log(`Parameter modes for 1002: ${getParameterModesForOpCode(1002)}`);
-
 const getOperationSize = (operation: Operation): number => {
     switch (operation) {
         case OPERATION_ADD:
@@ -111,10 +117,15 @@ const executeProgram = (rawProgram: number[]) => {
 
         const totalParameters = getTotalParameters(operation);
 
-        const parameterAddressA = memory[instructionPointer + 1];
-        const parameterAddressB = memory[instructionPointer + 2];
+        const parameters: number[] = [];
+        for (let i = 0; i < totalParameters; ++i) {
+            const address = memory[instructionPointer + 1 + i];
+            const value = memory[address];
 
-        const operationOutput = performOperation(operation, memory[parameterAddressA], memory[parameterAddressB]);
+            parameters.push(value);
+        }
+
+        const operationOutput = performOperation(operation, parameters);
         if (operationOutput !== null) {
             const outputAddress = memory[instructionPointer + totalParameters + 1];
             memory[outputAddress] = operationOutput;
