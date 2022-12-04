@@ -1,26 +1,29 @@
 const rawInput = require('fs')
     .readFileSync('2019/day03/input.txt').toString()
 
-const testInput = "R75,D30,R83,U83,L12,D49,R71,U7,L72\nU62,R66,U55,R34,D71,R55,D58,R83";
+const testInput = "R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51\nU98,R91,D20,R16,D67,R40,U7,R15,U6,R7";
 
 const instructionLists =
     rawInput
     .split("\n");
 
-const allVisitedLocations: Set<String> = new Set();
-const allCollisions: Set<String> = new Set();
+const allVisitedLocations: Set<string> = new Set();
+const allCollisions: Set<string> = new Set();
 
 const createCoordinatesString = (xPos: number, yPos: number) => `${xPos},${yPos}`;
 
-instructionLists.forEach( (instructionList, wireNumber) => {
+const timings: Map<string, number>[] = instructionLists.map( (instructionList, wireNumber): Map<string, number> => {
     const instructions = instructionList.split(",");
+
+    let positionCounter = 0;
 
     let xPos: number = 0;
     let yPos: number = 0;
 
     const allVisitedLocationsBeforeThisWireExisted = new Set(allVisitedLocations);
+    const outputTimings = new  Map<string, number>();
 
-    instructions.forEach(instruction => {
+    instructions.forEach( (instruction, instructionNumber) => {
         const instructionType = instruction.split("")[0];
         const instructionTotalTimes = Number(instruction.substring(1));
 
@@ -45,17 +48,27 @@ instructionLists.forEach( (instructionList, wireNumber) => {
                 allCollisions.add(asCoordinatesString);
             }
             allVisitedLocations.add(asCoordinatesString);
+            outputTimings.set(asCoordinatesString, ++positionCounter);
         }
     });
 
-    console.log(`Wire number ${wireNumber}, there are ${allCollisions.size} collisions`);
+    return outputTimings;
 });
+
+if (timings.length !== 2) {
+    throw new Error("Expecting only two wires");
+}
 
 console.log(`Total collisions = ${allCollisions.size}.`);
 
 const manhattanDistance = (x0: number, y0: number, x1: number, y1: number) => Math.abs(x1-x0) + Math.abs(y1-y0);
 
+const wireTimingsA = timings[0];
+const wireTimingsB = timings[1];
+
 let shortestDistance = Infinity;
+let shortestDelay = Infinity;
+
 allCollisions.forEach(collidingPoint => {
     const brokenDown = collidingPoint.split(",");
     const collisionX = Number(brokenDown[0]);
@@ -65,6 +78,15 @@ allCollisions.forEach(collidingPoint => {
     if (distance < shortestDistance) {
         shortestDistance = distance;
     }
+
+    const delayA = wireTimingsA.get(collidingPoint);
+    const delayB = wireTimingsB.get(collidingPoint);
+
+    const totalDelay = delayA + delayB;
+    if (totalDelay < shortestDelay) {
+        shortestDelay = totalDelay;
+    }
 });
 
 console.log("Shortest distance is: " + shortestDistance);
+console.log("Shortest delay is: " + shortestDelay);
