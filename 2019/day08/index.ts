@@ -50,4 +50,32 @@ const part1 = total1s * total2s;
 
 console.log(`${total1s} * ${total2s} = ${part1}`);
 
+const COLOUR_WHITE = 1;
+const COLOUR_TRANSPARENT = 2;
+
+layers.reverse();
+const output: number[] = layers[0].map(n => n);
+layers.shift();
+
+const processPixel = (pixel: number, index: number) => {
+    if (pixel !== COLOUR_TRANSPARENT) {
+        output[index] = pixel;
+    }
+}
+
+layers.forEach(layer => {
+    layer.forEach(processPixel);
+});
+
+let message = ""
+for (let y = 0; y < IMAGE_HEIGHT; ++y) {
+    for (let x = 0; x < IMAGE_WIDTH; ++x) {
+        const character = output.shift() == COLOUR_WHITE ? "█" : " ";
+        message = message + character;
+    }
+    message = message + "\n";
+}
+
+console.log("Message: \n" + message);
+
 export {};
