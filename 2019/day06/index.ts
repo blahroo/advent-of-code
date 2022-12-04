@@ -28,19 +28,19 @@ const orbitConfigurations: OrbitConfiguration[] = require('fs')
 console.log(orbitConfigurations[0]);
 
 interface IObject {
-    readonly id: string;
-    readonly children: IObject[];
     readonly level: number;
 
     addChild(child: IObject): void;
     setLevel(newLevel: number): void;
+    setParent(parent: IObject): void;
 }
 
 class OrbitableObject implements IObject {
-    public readonly children: IObject[] = [];
+    private children: IObject[] = [];
+    private parent: IObject = null;
     private _level: number | null = null;
 
-    constructor(public readonly id: string) { }
+    constructor(private readonly id: string) { }
 
     get level() {
         if (this._level === null) {
@@ -50,12 +50,20 @@ class OrbitableObject implements IObject {
     }
 
     addChild(child: IObject) {
+        child.setParent(this);
         this.children.push(child);
     }
 
     setLevel(level: number) {
         this._level = level;
         this.children.forEach(child => child.setLevel(level + 1));
+    }
+
+    setParent(parent: IObject) {
+        if (this.parent !== null) {
+            throw new Error("Parent has already been set for " + this.id);
+        }
+        this.parent = parent;
     }
 }
 
@@ -91,10 +99,7 @@ orbitConfigurations.forEach(orbitConfiguration => {
     orbittedObject.addChild(orbittingObject);
 });
 
-const universalCenterOfMass = safeGetFromCache("COM");
-console.log(universalCenterOfMass);
-
-universalCenterOfMass.setLevel(0);
+safeGetFromCache("COM").setLevel(0);
 
 let part1 = 0;
 objectCache.forEach(object => {
