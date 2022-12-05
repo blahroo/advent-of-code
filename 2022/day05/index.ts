@@ -12,7 +12,8 @@ const formationLinesReverse = formationLines.reverse();
 const instructions = Day05Input.slice(firstMoveIndex);
 
 // We won't use index 0 but it's easier to waste it's spot than offset everywhere
-const stacks = _times(10).map(() => new Stack<string>());
+const stacksPart1 = _times(10).map(() => new Stack<string>());
+const stacksPart2 = _times(10).map(() => new Stack<string>());
 
 for (const line of formationLinesReverse) {
   let offset = 1;
@@ -20,7 +21,8 @@ for (const line of formationLinesReverse) {
     const thisChar = line.charAt(offset);
 
     if (thisChar.trimRight() !== "") {
-      stacks[i].push(thisChar);
+      stacksPart1[i].push(thisChar);
+      stacksPart2[i].push(thisChar);
     }
 
     offset += 4;
@@ -33,13 +35,24 @@ for (const instruction of instructions) {
   const source = Number(parts[3]);
   const destination = Number(parts[5]);
 
+  const part2popped: string[] = [];
+
   for (let i = 0; i < total; ++i) {
-    stacks[destination].push(stacks[source].pop());
+    stacksPart1[destination].push(stacksPart1[source].pop());
+
+    part2popped.unshift(stacksPart2[source].pop());
   }
+
+  part2popped.forEach((char) => stacksPart2[destination].push(char));
 }
 
-const part1 = stacks
+const part1 = stacksPart1
   .map((stack) => stack.peek())
   .join("")
   .trimLeft();
-console.log({ part1 });
+
+const part2 = stacksPart2
+  .map((stack) => stack.peek())
+  .join("")
+  .trimLeft();
+console.log({ part1, part2 });
