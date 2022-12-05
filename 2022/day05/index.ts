@@ -3,11 +3,9 @@ import { Stack } from "@datastructures-js/stack";
 
 import _times from "lodash/times";
 
-export {};
-
 const firstMoveIndex = Day05Input.findIndex((line) => line.startsWith("move "));
 
-const formationLines = Day05Input.slice(0, firstMoveIndex - 2); // Minus empty line plus the x-axis lint
+const formationLines = Day05Input.slice(0, firstMoveIndex - 2); // Minus empty line plus the x-axis line
 const formationLinesReverse = formationLines.reverse();
 const instructions = Day05Input.slice(firstMoveIndex);
 
