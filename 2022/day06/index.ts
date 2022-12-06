@@ -5,18 +5,24 @@ const characters = Day06Input.split("");
 const part1 =
   4 +
   characters.findIndex((currentChar, currentIndex, allCharacters) => {
-    const chars = [
-      currentChar,
-      allCharacters[currentIndex + 1],
-      allCharacters[currentIndex + 2],
-      allCharacters[currentIndex + 3],
-    ].filter(Boolean);
+    const chars = allCharacters
+      .slice(currentIndex, currentIndex + 4)
+      .filter(Boolean);
 
-    const uniqueChars: ReadonlySet<String> = new Set(chars);
+    return new Set(chars).size === 4;
+  });
 
-    return uniqueChars.size === 4;
+const part2 =
+  14 +
+  characters.findIndex((currentChar, currentIndex, allCharacters) => {
+    const chars = allCharacters
+      .slice(currentIndex, currentIndex + 14)
+      .filter(Boolean);
+
+    return new Set(chars).size === 14;
   });
 
 console.log({
   part1,
+  part2,
 });
