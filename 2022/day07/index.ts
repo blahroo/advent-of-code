@@ -79,12 +79,42 @@ const getDirectorySize = (path: string) => {
   return myFileSizes + myDirectoriesSizes;
 };
 
+const ALL_PATHS = Array.from(DirectoryMap.keys());
 let sumOfAllUpTo100000 = 0;
-for (const [path, directory] of DirectoryMap.entries()) {
+for (const path of ALL_PATHS) {
   const size = getDirectorySize(path);
   if (size <= 100000) {
     sumOfAllUpTo100000 += size;
   }
 }
+const ORIGINAL_USED_SIZE = getDirectorySize("/");
+const NULL_DIRECTORY: Directory = { directoryNames: [], files: [] };
 
-console.log({ part1: sumOfAllUpTo100000 });
+let bestToDelete = "/";
+let smallestFile = ORIGINAL_USED_SIZE;
+
+for (const path of ALL_PATHS) {
+  const backupOfPath = getDirectory(path);
+  DirectoryMap.set(path, NULL_DIRECTORY);
+  const fileSystemUsed = getDirectorySize("/");
+
+  const unusedSpace = 70000000 - fileSystemUsed;
+  /*
+  console.log(
+    `Delete directory '${path}', which would increase unused space by '${fileSystemUsed}' (Free space '${unusedSpace}')`
+  );
+*/
+  DirectoryMap.set(path, backupOfPath);
+
+  if (unusedSpace >= 30000000) {
+    if (unusedSpace < smallestFile) {
+      bestToDelete = path;
+      smallestFile = unusedSpace;
+    }
+  }
+}
+
+console.log({
+  part1: sumOfAllUpTo100000,
+  part2: getDirectorySize(bestToDelete),
+});
