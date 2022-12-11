@@ -1,34 +1,6 @@
 import { Day11Input } from "./input";
 import _times from "lodash/times";
-/*
-const lines = `Monkey 0:
-Starting items: 79, 98
-Operation: new = old * 19
-Test: divisible by 23
-  If true: throw to monkey 2
-  If false: throw to monkey 3
 
-Monkey 1:
-Starting items: 54, 65, 75, 74
-Operation: new = old + 6
-Test: divisible by 19
-  If true: throw to monkey 2
-  If false: throw to monkey 0
-
-Monkey 2:
-Starting items: 79, 60, 97
-Operation: new = old * old
-Test: divisible by 13
-  If true: throw to monkey 1
-  If false: throw to monkey 3
-
-Monkey 3:
-Starting items: 74
-Operation: new = old + 3
-Test: divisible by 17
-  If true: throw to monkey 0
-  If false: throw to monkey 1`.split("\n");
-*/
 type SingleOperation = "square";
 type ParameterizedOperation = ["add" | "multiply", number];
 type Operation = SingleOperation | ParameterizedOperation;
@@ -126,17 +98,28 @@ class Monkey {
     return value * this.operation[1];
   }
 
+  protected decayWorryLevel(value: number) {
+    return Math.floor(value / 3);
+  }
+
+  protected throwItem(to: number, value: number): Throw {
+    return {
+      to,
+      value,
+    };
+  }
+
   #processItem(item: number): Throw {
     ++this.totalItemsInspected;
     const activeWorryLevel = this.#applyWorry(item);
-    const boredWorryLevel = Math.floor(activeWorryLevel / 3);
+    const decayedWorryLevel = this.decayWorryLevel(activeWorryLevel);
 
-    const wasDivisible = boredWorryLevel % this.testDivisibleBy === 0;
+    const wasDivisible = decayedWorryLevel % this.testDivisibleBy === 0;
 
-    return {
-      to: wasDivisible ? this.trueMonkeyIndex : this.falseMonkeyIndex,
-      value: boredWorryLevel,
-    };
+    return this.throwItem(
+      wasDivisible ? this.trueMonkeyIndex : this.falseMonkeyIndex,
+      decayedWorryLevel
+    );
   }
 
   tick(): Throw[] {
@@ -152,56 +135,82 @@ class Monkey {
 }
 
 const monkeys: Monkey[] = [];
-const input = [...Day11Input];
+const monkeysInput = [...Day11Input];
 
-while (input.length) {
-  monkeys.push(
-    new Monkey([
-      input.shift(),
-      input.shift(),
-      input.shift(),
-      input.shift(),
-      input.shift(),
-      input.shift(),
-    ])
-  );
+while (monkeysInput.length) {
+  const monkey = new Monkey([
+    monkeysInput.shift(),
+    monkeysInput.shift(),
+    monkeysInput.shift(),
+    monkeysInput.shift(),
+    monkeysInput.shift(),
+    monkeysInput.shift(),
+  ]);
+  monkeys.push(monkey);
 
   // Burn the empty line
-  input.shift();
+  monkeysInput.shift();
 }
 
-/*
-monkeys.forEach((monkey) => {
-  monkey.print();
-  console.log("");
-});
-*/
-
-const ROUNDS = 20;
-_times(ROUNDS).forEach((round) => {
-  /*
-  if (round !== 0) {
-    console.log("");
+const superModulus = monkeys.reduce(
+  (runningTotal, monkey) => monkey.testDivisibleBy * runningTotal,
+  1
+);
+class NonCalmingMonkey extends Monkey {
+  constructor(input: [string, string, string, string, string, string]) {
+    super(input);
   }
-  console.log(`Round ${round + 1}`);
-*/
-  monkeys.forEach((monkey) => {
-    const throws = monkey.tick();
-    throws.forEach(({ to, value }) => {
-      monkeys[to].receiveItem(value);
+
+  protected decayWorryLevel(value: number) {
+    return value;
+  }
+
+  protected throwItem(to: number, value: number): Throw {
+    return {
+      to,
+      value: value % superModulus,
+    };
+  }
+}
+
+const nonCalmingMonkeysInput = [...Day11Input];
+const nonCalmingMonkeys: NonCalmingMonkey[] = [];
+
+while (nonCalmingMonkeysInput.length) {
+  const monkey = new NonCalmingMonkey([
+    nonCalmingMonkeysInput.shift(),
+    nonCalmingMonkeysInput.shift(),
+    nonCalmingMonkeysInput.shift(),
+    nonCalmingMonkeysInput.shift(),
+    nonCalmingMonkeysInput.shift(),
+    nonCalmingMonkeysInput.shift(),
+  ]);
+  nonCalmingMonkeys.push(monkey);
+
+  // Burn the empty line
+  nonCalmingMonkeysInput.shift();
+}
+
+const getMonkeyBusiness = (sourceMonkeys: Monkey[], totalRounds: number) => {
+  _times(totalRounds).forEach((round) => {
+    sourceMonkeys.forEach((monkey) => {
+      const throws = monkey.tick();
+      throws.forEach(({ to, value }) => {
+        sourceMonkeys[to].receiveItem(value);
+      });
     });
   });
-  /*
-  monkeys.forEach((monkey) => {
-    monkey.printItems();
-  });*/
-});
 
-const activeLevels = monkeys.map((monkey) => {
-  //console.log(`${monkey.name} inspected items ${monkey.totalItemsInspected} times`);
-  return monkey.totalItemsInspected;
-});
+  const activeLevels = sourceMonkeys.map((monkey) => {
+    return monkey.totalItemsInspected;
+  });
 
-const sorted = activeLevels.sort((a, b) => b - a);
-const monkeyBusinessLevel = sorted[0] * sorted[1];
-console.log({ monkeyBusinessLevel });
+  const sorted = activeLevels.sort((a, b) => b - a);
+  const monkeyBusinessLevel = sorted[0] * sorted[1];
+  return monkeyBusinessLevel;
+};
+
+console.log({
+  part1: getMonkeyBusiness(monkeys, 20),
+  part2: getMonkeyBusiness(nonCalmingMonkeys, 10000),
+});
