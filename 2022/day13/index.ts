@@ -10,12 +10,19 @@ type Pair = {
 };
 
 const pairs: Pair[] = [];
+const packets: Data[] = [];
 
 while (lines.length) {
+  const left: Data = JSON.parse(lines.shift());
+  const right: Data = JSON.parse(lines.shift());
+
   pairs.push({
-    left: JSON.parse(lines.shift()),
-    right: JSON.parse(lines.shift()),
+    left,
+    right,
   });
+
+  packets.push(left);
+  packets.push(right);
 
   // Burn the empty line
   lines.shift();
@@ -68,3 +75,29 @@ const summedIndexesInRightOrder = pairs.reduce(
 );
 
 console.log({ summedIndexesInRightOrder });
+
+packets.push(JSON.parse("[[2]]"));
+packets.push(JSON.parse("[[6]]"));
+
+packets.sort((a, b) => {
+  const result = isRightOrder(a, b);
+
+  return result === undefined ? 0 : result ? -1 : 1;
+});
+
+let a = 0;
+let b = 0;
+
+packets.forEach((packet, index) => {
+  if (Array.isArray(packet) && packet.length === 1) {
+    if (Array.isArray(packet[0]) && packet[0].length === 1) {
+      if (packet[0][0] === 2) {
+        a = index + 1;
+      } else if (packet[0][0] === 6) {
+        b = index + 1;
+      }
+    }
+  }
+});
+
+console.log(`Part 2 = ${a * b}`);
