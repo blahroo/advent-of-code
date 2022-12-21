@@ -4,5 +4,8 @@
       "module": "commonjs",
       "sourceMap": true,
       "esModuleInterop": true,
+      "paths": {
+        "utilities/*": ["./utilities/*"]
+      }
   }
 }

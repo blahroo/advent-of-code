@@ -1,9 +1,5 @@
+import { Point } from "utilities/space";
 import { Day09Input } from "./input";
-
-type Point = {
-  x: number;
-  y: number;
-};
 
 let headPos: Point = { x: 0, y: 0 };
 let tailPos: Point = { x: 0, y: 0 };
