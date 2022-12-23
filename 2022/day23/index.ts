@@ -1,26 +1,21 @@
 import { Direction, Point } from "utilities/space";
 import { Day23Input } from "./input";
 
-const EXAMPLE_INPUT = `....#..
-..###.#
-#...#.#
-.#...##
-#.###..
-##.#.##
-.#..#..`.split("\n");
-
 const input = Day23Input;
 
 const elfPositions = new Set<string>();
 
-input.forEach((line, rowIndex) => {
-  const characters = line.split("");
-  characters.forEach((character, columnIndex) => {
-    if (character === "#") {
-      elfPositions.add(`${columnIndex},${rowIndex}`);
-    }
+const resetInput = () => {
+  elfPositions.clear();
+  input.forEach((line, rowIndex) => {
+    const characters = line.split("");
+    characters.forEach((character, columnIndex) => {
+      if (character === "#") {
+        elfPositions.add(`${columnIndex},${rowIndex}`);
+      }
+    });
   });
-});
+};
 
 const getDimensions = () => {
   const coords = Array.from(elfPositions.keys());
@@ -48,24 +43,6 @@ const getDimensions = () => {
     width: rightMost - leftMost + 1,
     height: bottomMost - topMost + 1,
   };
-};
-
-const printWorld = () => {
-  const { bottomMost, leftMost, rightMost, topMost } = getDimensions();
-
-  const lines: string[] = [];
-
-  for (let y = topMost; y <= bottomMost; ++y) {
-    const line: string[] = [];
-
-    for (let x = leftMost; x <= rightMost; ++x) {
-      line.push(elfPositions.has(`${x},${y}`) ? "#" : ".");
-    }
-
-    lines.push(line.join(""));
-  }
-
-  console.log(lines.join("\n"));
 };
 
 const hasAnAdjacentElf = (elf: Readonly<Point>) => {
@@ -169,9 +146,13 @@ const getProposedPoint = (
   return elf;
 };
 
-const solve = () => {
+const solve = (limit: number) => {
+  resetInput();
+
   const order: Direction[] = ["N", "S", "W", "E"];
-  for (let round = 0; round < 10; ++round) {
+  for (let round = 0; round < limit; ++round) {
+    let movedAnElf = false;
+
     const allElfCoords = Object.freeze(
       Array.from(elfPositions.keys()).map((coords): Point => {
         const [x, y] = coords.split(",").map(Number);
@@ -207,6 +188,8 @@ const solve = () => {
         elfPositions.delete(`${currentPosition.x},${currentPosition.y}`);
         // - set new position
         elfPositions.add(coords);
+        // - mark that a move happened this round
+        movedAnElf = true;
       }
     });
 
@@ -214,23 +197,25 @@ const solve = () => {
     const shifted = order.shift();
     order.push(shifted);
 
-    console.log(`== End of Round ${round + 1} ==`);
-    // printWorld();
+    if (!movedAnElf) {
+      // Part 2 return point, no elf moved this round
+      return round + 1;
+    }
   }
 
   const { width, height } = getDimensions();
   const area = width * height;
   const elfCount = elfPositions.size;
+  const answer = area - elfCount;
 
-  printWorld();
-
-  console.log({
-    width,
-    height,
-    area,
-    elfCount,
-    answer: area - elfCount,
-  });
+  // Part 1 return point
+  return answer;
 };
 
-solve();
+const part1 = solve(10);
+const part2 = solve(Number.MAX_SAFE_INTEGER);
+
+console.log({
+  part1,
+  part2,
+});
