@@ -16,7 +16,7 @@ const mapped = RAW_LINES.map((line, lineIndex) => {
       }
     }, {});
 
-    console.log({ balls })
+    //console.log({ balls })
 
     return balls;
   });
@@ -49,4 +49,22 @@ const getPossibleGameIds = (games: Array<Array<Record<string, number>>>) => {
 const possibleGameIds = getPossibleGameIds(mapped);
 const summedIds = possibleGameIds.reduce((runningTotal, gameId) => runningTotal + gameId, 0);
 
-console.log({ possibleGameIds, summedIds })
+console.log({ summedIds })
+
+const powers = mapped.map((game, gameIndex) => {
+  let blue = 0;
+  let green = 0;
+  let red = 0;
+
+  game.forEach(set => {
+    blue = Math.max(blue, set['blue'] ?? 0);
+    green = Math.max(green, set['green'] ?? 0);
+    red = Math.max(red, set['red'] ?? 0);
+  })
+
+  const power = red * green * blue;
+  return power;
+});
+
+const summedPowers = powers.reduce((runningTotal, power) => runningTotal + power, 0);
+console.log({ summedPowers })
