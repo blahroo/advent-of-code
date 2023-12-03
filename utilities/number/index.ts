@@ -1,0 +1,1 @@
+export { isDigit } from './isDigit';
