@@ -53,8 +53,15 @@ const isTouchingAnySymbol = (rowIndex: number, columnIndex: number, searchWidth:
   return false;
 }
 
-const findPartNumbers = () => {
-  const foundPartNumbers: Array<number> = [];
+type NumberArea = {
+  endColIndex: number;
+  rowIndex: number;
+  startColIndex: number;
+  value: number;
+}
+
+const findPartNumberAreas = () => {
+  const foundPartNumbers: Array<NumberArea> = [];
 
   RAW_GRID.forEach((line, rowIndex) => {
     let inProgressNumber: null | Array<string> = null;
@@ -79,12 +86,13 @@ const findPartNumbers = () => {
         if (!currentIsDigit || isEndOfLine) {
           const totalDigits = inProgressNumber.length;
           if (isTouchingAnySymbol(rowIndex, inProgressStartColumn, totalDigits)) {
-            console.log({ valid: inProgressNumber });
-
             const asNumber = Number(inProgressNumber.join(''));
-            foundPartNumbers.push(asNumber);
-          } else {
-            console.log({ invalid: inProgressNumber });
+            foundPartNumbers.push({
+              endColIndex: columnIndex - 1,
+              rowIndex,
+              startColIndex: inProgressStartColumn,
+              value: asNumber,
+            });
           }
 
           inProgressNumber = null;
@@ -96,7 +104,46 @@ const findPartNumbers = () => {
   return foundPartNumbers;
 };
 
-const part1numbers = findPartNumbers();
-const part1 = _sum(part1numbers);
+const areas = findPartNumberAreas();
+const part1numbers = areas.map(({ value }) => value);
 
-console.log({ part1 })
+const getArea = (x: number, y: number) => areas.find(area => (area.rowIndex === y) && x >= area.startColIndex && x <= area.endColIndex)
+
+const inferGear = (x: number, y: number): null | Array<number> => {
+  const areasMaybe = [
+    getArea(x - 1, y - 1), getArea(x, y - 1), getArea(x + 1, y - 1),
+    getArea(x - 1, y),     /****************/ getArea(x + 1, y),
+    getArea(x - 1, y + 1), getArea(x, y + 1), getArea(x + 1, y + 1),
+  ].filter(Boolean);
+
+  const uniqueAreas = new Set(areasMaybe);
+  if (uniqueAreas.size === 2) {
+    return Array.from(uniqueAreas.values()).map(area => area.value);
+  }
+
+  return null;
+}
+
+const findGearRatios = () => {
+  const gearRatios: number[] = [];
+
+  RAW_GRID.forEach((line, rowIndex) => {
+    line.forEach((char, colIndx) => {
+      if (char === '*') {
+        const gear = inferGear(colIndx, rowIndex);
+        if (gear) {
+          gearRatios.push(gear[0] * gear[1]);
+        }
+      }
+    });
+  });
+
+  return gearRatios;
+}
+
+const gearRatios = findGearRatios();
+
+console.log({
+  part1: _sum(part1numbers), // 544433
+  part2: _sum(gearRatios),   // 76314915
+})
