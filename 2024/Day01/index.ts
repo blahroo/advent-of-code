@@ -8,6 +8,7 @@ const lines = data.split("\n");
 let column1: number[] = [];
 let column2: number[] = [];
 let differences: number[] = [];
+let similarities: number[] = [];
 
 lines.forEach((line) => {
   const [num1, num2] = line.trim().split(/\s+/);
@@ -42,8 +43,23 @@ function addDifference(differences: number[]) {
   console.log(runningTotal);
 }
 
+function calculateSimilarities(arr1: number[], arr2: number[]) {
+  arr1.forEach((arr1Number) => {
+    let frequency = 0;
+    arr2.forEach((arr2Number) => {
+      if (arr1Number === arr2Number) {
+        frequency += 1;
+      }
+    });
+    similarities.push(frequency * arr1Number);
+  });
+  console.log(similarities);
+}
+
 console.log("Column 1:", column1);
 console.log("Column 2:", column2);
 
 calculateDifference(column1, column2);
 addDifference(differences);
+calculateSimilarities(column1, column2);
+addDifference(similarities);
