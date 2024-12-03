@@ -16,13 +16,15 @@ lines.forEach((line) => {
   column2.push(parseInt(num2, 10));
 });
 
-column1 = column1.sort(function (a, b) {
-  return a - b;
-});
+function ascendingOrder(array: number[]) {
+  array.sort(function (a, b) {
+    return a - b;
+  });
+  return array;
+}
 
-column2 = column2.sort(function (a, b) {
-  return a - b;
-});
+column1 = ascendingOrder(column1);
+column2 = ascendingOrder(column2);
 
 function calculateDifference(arr1: number[], arr2: number[]) {
   for (let step = 0; step < arr1.length; step++) {
@@ -35,9 +37,9 @@ function calculateDifference(arr1: number[], arr2: number[]) {
   console.log(differences);
 }
 
-function addDifference(differences: number[]) {
+function sumArray(inputArray: number[]) {
   let runningTotal = 0;
-  differences.forEach((number) => {
+  inputArray.forEach((number) => {
     runningTotal += number;
   });
   console.log(runningTotal);
@@ -51,15 +53,14 @@ function calculateSimilarities(arr1: number[], arr2: number[]) {
         frequency += 1;
       }
     });
-    similarities.push(frequency * arr1Number);
+    if (frequency != 0) {
+      similarities.push(frequency * arr1Number);
+    }
   });
   console.log(similarities);
 }
 
-console.log("Column 1:", column1);
-console.log("Column 2:", column2);
-
 calculateDifference(column1, column2);
-addDifference(differences);
+sumArray(differences);
 calculateSimilarities(column1, column2);
-addDifference(similarities);
+sumArray(similarities);

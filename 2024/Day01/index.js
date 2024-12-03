@@ -46,12 +46,14 @@ lines.forEach((line) => {
     column1.push(parseInt(num1, 10));
     column2.push(parseInt(num2, 10));
 });
-column1 = column1.sort(function (a, b) {
-    return a - b;
-});
-column2 = column2.sort(function (a, b) {
-    return a - b;
-});
+function ascendingOrder(array) {
+    array.sort(function (a, b) {
+        return a - b;
+    });
+    return array;
+}
+column1 = ascendingOrder(column1);
+column2 = ascendingOrder(column2);
 function calculateDifference(arr1, arr2) {
     for (let step = 0; step < arr1.length; step++) {
         if (arr1[step] > arr2[step]) {
@@ -63,9 +65,9 @@ function calculateDifference(arr1, arr2) {
     }
     console.log(differences);
 }
-function addDifference(differences) {
+function sumArray(inputArray) {
     let runningTotal = 0;
-    differences.forEach((number) => {
+    inputArray.forEach((number) => {
         runningTotal += number;
     });
     console.log(runningTotal);
@@ -78,14 +80,14 @@ function calculateSimilarities(arr1, arr2) {
                 frequency += 1;
             }
         });
-        similarities.push(frequency * arr1Number);
+        if (frequency != 0) {
+            similarities.push(frequency * arr1Number);
+        }
     });
     console.log(similarities);
 }
-console.log("Column 1:", column1);
-console.log("Column 2:", column2);
 calculateDifference(column1, column2);
-addDifference(differences);
+sumArray(differences);
 calculateSimilarities(column1, column2);
-addDifference(similarities);
+sumArray(similarities);
 //# sourceMappingURL=index.js.map
