@@ -37,10 +37,8 @@ const fs = __importStar(require("fs"));
 // Read and process the file
 const data = fs.readFileSync("data.txt", "utf-8");
 const lines = data.split("\n");
-let column1 = [];
-let column2 = [];
-let differences = [];
-let similarities = [];
+const column1 = [];
+const column2 = [];
 lines.forEach((line) => {
     const [num1, num2] = line.trim().split(/\s+/);
     column1.push(parseInt(num1, 10));
@@ -52,9 +50,15 @@ function ascendingOrder(array) {
     });
     return array;
 }
-column1 = ascendingOrder(column1);
-column2 = ascendingOrder(column2);
+function sumArray(inputArray) {
+    let runningTotal = 0;
+    inputArray.forEach((number) => {
+        runningTotal += number;
+    });
+    console.log(runningTotal);
+}
 function calculateDifference(arr1, arr2) {
+    let differences = [];
     for (let step = 0; step < arr1.length; step++) {
         if (arr1[step] > arr2[step]) {
             differences.push(arr1[step] - arr2[step]);
@@ -63,16 +67,10 @@ function calculateDifference(arr1, arr2) {
             differences.push(arr2[step] - arr1[step]);
         }
     }
-    console.log(differences);
-}
-function sumArray(inputArray) {
-    let runningTotal = 0;
-    inputArray.forEach((number) => {
-        runningTotal += number;
-    });
-    console.log(runningTotal);
+    return sumArray(differences);
 }
 function calculateSimilarities(arr1, arr2) {
+    let similarities = [];
     arr1.forEach((arr1Number) => {
         let frequency = 0;
         arr2.forEach((arr2Number) => {
@@ -84,10 +82,8 @@ function calculateSimilarities(arr1, arr2) {
             similarities.push(frequency * arr1Number);
         }
     });
-    console.log(similarities);
+    return sumArray(similarities);
 }
-calculateDifference(column1, column2);
-sumArray(differences);
-calculateSimilarities(column1, column2);
-sumArray(similarities);
+calculateDifference(ascendingOrder(column1), ascendingOrder(column2));
+calculateSimilarities(ascendingOrder(column1), ascendingOrder(column2));
 //# sourceMappingURL=index.js.map

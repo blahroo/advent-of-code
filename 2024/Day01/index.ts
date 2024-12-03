@@ -1,14 +1,11 @@
 import * as fs from "fs";
-import { add } from "lodash";
 
 // Read and process the file
 const data = fs.readFileSync("data.txt", "utf-8");
 const lines = data.split("\n");
 
-let column1: number[] = [];
-let column2: number[] = [];
-let differences: number[] = [];
-let similarities: number[] = [];
+const column1: number[] = [];
+const column2: number[] = [];
 
 lines.forEach((line) => {
   const [num1, num2] = line.trim().split(/\s+/);
@@ -23,20 +20,6 @@ function ascendingOrder(array: number[]) {
   return array;
 }
 
-column1 = ascendingOrder(column1);
-column2 = ascendingOrder(column2);
-
-function calculateDifference(arr1: number[], arr2: number[]) {
-  for (let step = 0; step < arr1.length; step++) {
-    if (arr1[step] > arr2[step]) {
-      differences.push(arr1[step] - arr2[step]);
-    } else {
-      differences.push(arr2[step] - arr1[step]);
-    }
-  }
-  console.log(differences);
-}
-
 function sumArray(inputArray: number[]) {
   let runningTotal = 0;
   inputArray.forEach((number) => {
@@ -45,7 +28,20 @@ function sumArray(inputArray: number[]) {
   console.log(runningTotal);
 }
 
+function calculateDifference(arr1: number[], arr2: number[]) {
+  let differences: number[] = [];
+  for (let step = 0; step < arr1.length; step++) {
+    if (arr1[step] > arr2[step]) {
+      differences.push(arr1[step] - arr2[step]);
+    } else {
+      differences.push(arr2[step] - arr1[step]);
+    }
+  }
+  return sumArray(differences);
+}
+
 function calculateSimilarities(arr1: number[], arr2: number[]) {
+  let similarities: number[] = [];
   arr1.forEach((arr1Number) => {
     let frequency = 0;
     arr2.forEach((arr2Number) => {
@@ -57,10 +53,8 @@ function calculateSimilarities(arr1: number[], arr2: number[]) {
       similarities.push(frequency * arr1Number);
     }
   });
-  console.log(similarities);
+  return sumArray(similarities);
 }
 
-calculateDifference(column1, column2);
-sumArray(differences);
-calculateSimilarities(column1, column2);
-sumArray(similarities);
+calculateDifference(ascendingOrder(column1), ascendingOrder(column2));
+calculateSimilarities(ascendingOrder(column1), ascendingOrder(column2));
